@@ -20,12 +20,12 @@ CNPJ RET + Razão Social + CNPJ Ostensiva + Código Receita + Período de Apura�
 5. Compara o valor do PDF com o valor da planilha.
 6. Gera o arquivo `resultado_conferencia-RET.xlsx` na pasta onde está a planilha de entrada.
 
-#  Regras de resultado
-Situação | Status Final 
-Guia localizada e valor igual | `ok`
-Guia localizada e valor diferente | `revisar` 
-Linha da planilha sem PDF correspondente | `revisar` — Apenas planilha 
-PDF sem linha correspondente na planilha | `revisar` — Apenas guia 
+#  Regras de resultado Situação | Status Final 
+
+- Guia localizada e valor igual | `ok`
+- Guia localizada e valor diferente | `revisar` 
+- Linha da planilha sem PDF correspondente | `revisar` — Apenas planilha 
+- PDF sem linha correspondente na planilha | `revisar` — Apenas guia 
 
 A conferência considera o valor correto somente quando a diferença é exatamente `0,00`.
 
@@ -39,6 +39,7 @@ A conferência considera o valor correto somente quando a diferença é exatamen
 - Valores: arredondados para duas casas decimais.
 
 ## Utilização
+
 Basta abrir o executável e selecionar:
 1) A pasta dos PDFs;
 2) A pasta que contém o arquivo Apuracao-RET.xlsx.
