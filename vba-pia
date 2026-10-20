@@ -1,0 +1,78 @@
+Sub gerar_planilha_ret()
+
+
+Dim ws2 As Worksheet
+Dim ws3 As Worksheet
+
+Set ws3 = ActiveWorkbook.Sheets("RET - Apuração")
+
+
+periodo = InputBox("Informar no formato: Mês/Ano" & vbCrLf & "Exemplo: Janeiro/2026", "Qual o período de apuração?")
+If periodo = "" Then
+MsgBox "Processso cancelado"
+Exit Sub
+End If
+
+Application.ScreenUpdating = False
+'criar ou limpar aba Base Guias
+On Error Resume Next
+Set ws2 = Worksheets("Base Guias")
+On Error GoTo 0
+
+If ws2 Is Nothing Then
+    Set ws2 = Worksheets.Add
+    ws2.Name = "Base Guias"
+Else
+    ws2.Cells.Clear
+End If
+
+ws2.Range("A1:H1").Value = Array("Empreendimento", "Razão Social Guia", "CNPJ ostensiva", "CNPJ RET", "% RET", "Valor Guia", "Código Receita", "Período de Apuração")
+ultimaLinha = ws3.Cells(ws3.Rows.Count, "A").End(xlUp).Row - 1
+linhaBase = 2
+
+For i = 2 To ultimaLinha
+'Copiar valores da aba RET - Apuração
+If ws3.Cells(i, "F").Value > 0 Then
+    ws2.Cells(linhaBase, "A").Value = ws3.Cells(i, "A").Value
+    ws2.Cells(linhaBase, "B").Formula = "=XLOOKUP(A" & linhaBase & ",'Base CNPJs'!A:A,'Base CNPJs'!F:F,"""")"
+    ws2.Cells(linhaBase, "C").Formula = "=XLOOKUP(A" & linhaBase & ",'Base CNPJs'!A:A,'Base CNPJs'!E:E,"""")"
+    ws2.Cells(linhaBase, "D").Value = ws3.Cells(i, "G").Value
+    ws2.Cells(linhaBase, "E").Value = ws3.Cells(i, "B").Value
+    ws2.Cells(linhaBase, "F").Value = Round(ws3.Cells(i, "F").Value, 2)
+    ws2.Cells(linhaBase, "G").Value = ws3.Cells(i, "H").Value
+    ws2.Cells(linhaBase, "H").Value = periodo
+    linhaBase = linhaBase + 1
+End If
+Next i
+
+
+'Formatação
+ws2.Range("B:C").Value = ws2.Range("B:C").Value
+ws2.Range("F:F").NumberFormat = "#,##0.00"
+ws2.Columns("E").NumberFormat = "0%"
+
+
+'Criar novo arquivo somente com a Base Guias
+Dim wbNovo As Workbook
+Dim caminhoArquivo As String
+
+ws2.Copy
+Set wbNovo = ActiveWorkbook
+
+caminhoArquivo = ThisWorkbook.Path & Application.PathSeparator & "Apuração-RET.xlsx"
+
+Application.DisplayAlerts = False
+wbNovo.SaveAs Filename:=caminhoArquivo, FileFormat:=xlOpenXMLWorkbook
+Application.DisplayAlerts = True
+
+wbNovo.Close SaveChanges:=False
+
+Application.ScreenUpdating = True
+MsgBox "Processo finalizado" & vbCrLf & "Arquivo salvo em: " & caminhoArquivo
+
+
+
+
+
+End Sub
+
