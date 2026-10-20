@@ -1,0 +1,133 @@
+Sub gerar_planilha()
+
+Dim ws9 As Worksheet
+Dim ws10 As Worksheet
+Dim ws11 As Worksheet
+Dim ws12 As Worksheet
+Dim ws13 As Worksheet
+Dim ws14 As Worksheet
+
+Dim i As Long
+Dim ultimaLinha As Long
+Dim ultimaLinhawp As Long
+Dim ultimaLinhaurb As Long
+
+Set ws9 = ActiveWorkbook.Sheets("Resumo Apuração RET-PIS-COFINS")
+periodo = InputBox("Informar no formato: Mês/Ano" & vbCrLf & "Exemplo: Janeiro/2026", "Qual o período de apuração?")
+
+If periodo = "" Then
+MsgBox "Processso cancelado"
+Exit Sub
+End If
+
+Application.ScreenUpdating = False
+
+'criar ou limpar aba Base Guias RET
+On Error Resume Next
+Set ws10 = Worksheets("Base Guias")
+On Error GoTo 0
+
+If ws10 Is Nothing Then
+    Set ws10 = Worksheets.Add
+    ws10.Name = "Base Guias"
+Else
+    ws10.Cells.Clear
+End If
+
+ws10.Range("A1:H1").Value = Array("Empreendimento", "Razão Social Guia", "CNPJ ostensiva", "CNPJ RET", "% RET", "Valor Guia", "Código Receita", "Período de Apuração")
+ultimaLinha = ws9.Cells(ws9.Rows.Count, "B").End(xlUp).Row - 1
+linhaBase = 2
+
+For i = 2 To ultimaLinha
+'RET da aba resumo
+If ws9.Cells(i, "I").Value > 0 And ws9.Cells(i, "I").Value <> "N/A" Then
+    ws10.Cells(linhaBase, "A").Value = ws9.Cells(i, "B").Value
+    ws10.Cells(linhaBase, "B").Value = ws9.Cells(i, "B").Value
+    ws10.Cells(linhaBase, "C").Value = ws9.Cells(i, "L").Value
+    ws10.Cells(linhaBase, "D").Formula = "=XLOOKUP(A" & linhaBase & ",'Empresas'!H:H,'Empresas'!L:L,"""")"
+    ws10.Cells(linhaBase, "D").Value = ws10.Cells(linhaBase, "D").Value
+    ws10.Cells(linhaBase, "E").Value = "4%"
+    ws10.Cells(linhaBase, "F").Value = ws9.Cells(i, "I").Value
+    ws10.Cells(linhaBase, "G").Value = "4095"
+    ws10.Cells(linhaBase, "H").Value = periodo
+    
+    linhaBase = linhaBase + 1
+End If
+Next i
+
+'RET da Winter Park
+Set ws11 = Worksheets("Winter Park")
+ultimaLinhawp = ws11.Cells(ws11.Rows.Count, "A").End(xlUp).Row - 1
+For i = 4 To ultimaLinhawp
+If ws11.Cells(i, "E").Value > 0 Then
+    ws10.Cells(linhaBase, "A").Value = ws11.Cells(i, "A").Value
+    'Razão social Guia
+    ws10.Cells(linhaBase, "B").Formula = "=XLOOKUP(A" & linhaBase & ",'Empresas'!H:H,'Empresas'!I:I,"""")"
+    ws10.Cells(linhaBase, "B").Value = ws10.Cells(linhaBase, "B").Value
+    'CNPJ Ostensiva
+    ws10.Cells(linhaBase, "C").Formula = "=XLOOKUP(A" & linhaBase & ",'Empresas'!H:H,'Empresas'!J:J,"""")"
+    ws10.Cells(linhaBase, "C").Value = ws10.Cells(linhaBase, "C").Value
+    'CNPJ RET
+    ws10.Cells(linhaBase, "D").Formula = "=XLOOKUP(A" & linhaBase & ",'Empresas'!H:H,'Empresas'!L:L,"""")"
+    ws10.Cells(linhaBase, "D").Value = ws10.Cells(linhaBase, "D").Value
+    ws10.Cells(linhaBase, "E").Value = "4%"
+    ws10.Cells(linhaBase, "F").Value = ws11.Cells(i, "E").Value
+    ws10.Cells(linhaBase, "G").Value = "4095"
+    ws10.Cells(linhaBase, "H").Value = periodo
+    linhaBase = linhaBase + 1
+End If
+Next i
+
+'RET da Urbanização
+Set ws12 = Worksheets("Urbanização")
+ultimaLinhaurb = ws12.Cells(ws12.Rows.Count, "A").End(xlUp).Row - 1
+For i = 4 To ultimaLinhaurb
+If ws12.Cells(i, "E").Value > 0 Then
+    ws10.Cells(linhaBase, "A").Value = ws12.Cells(i, "A").Value
+    'Razão social Guia
+    ws10.Cells(linhaBase, "B").Formula = "=XLOOKUP(A" & linhaBase & ",'Empresas'!H:H,'Empresas'!I:I,"""")"
+    ws10.Cells(linhaBase, "B").Value = ws10.Cells(linhaBase, "B").Value
+    'CNPJ Ostensiva
+    ws10.Cells(linhaBase, "C").Formula = "=XLOOKUP(A" & linhaBase & ",'Empresas'!H:H,'Empresas'!J:J,"""")"
+    ws10.Cells(linhaBase, "C").Value = ws10.Cells(linhaBase, "C").Value
+    'CNPJ RET
+    ws10.Cells(linhaBase, "D").Formula = "=XLOOKUP(A" & linhaBase & ",'Empresas'!H:H,'Empresas'!L:L,"""")"
+    ws10.Cells(linhaBase, "D").Value = ws10.Cells(linhaBase, "D").Value
+    ws10.Cells(linhaBase, "E").Value = "4%"
+    ws10.Cells(linhaBase, "F").Value = ws12.Cells(i, "E").Value
+    ws10.Cells(linhaBase, "G").Value = "4095"
+    ws10.Cells(linhaBase, "H").Value = periodo
+    linhaBase = linhaBase + 1
+End If
+Next i
+
+
+'Formatação
+ws10.Range("F:F").NumberFormat = "#,##0.00"
+ws10.Range("C:D").NumberFormat = "00\.000\.000\/0000\-00"
+'Remover o Empreendimento do nome
+ws10.Columns("A").Replace What:="Empreendimento/Bloco : ", Replacement:="", LookAt:=xlPart
+ws10.Columns("A").Replace What:="Empreendimento / Bloco: ", Replacement:="", LookAt:=xlPart
+'Exluir WP, URB e SOHO
+For i = linhaBase To 2 Step -1
+If ws10.Cells(i, "A").Value Like "WINTER PARK CONSTRUÇÕES LTDA" Or _
+ws10.Cells(i, "A").Value Like "ELIO WINTER URBANIZAÇÃO LTDA" Then
+ws10.Rows(i).Delete
+End If
+Next i
+
+'Criar novo arquivo somente com a Base Guias
+Dim wbNovo As Workbook
+Dim caminhoArquivo As String
+
+ws10.Copy
+Set wbNovo = ActiveWorkbook
+caminhoArquivo = ThisWorkbook.Path & Application.PathSeparator & "Apuração-RET.xlsx"
+Application.DisplayAlerts = False
+wbNovo.SaveAs Filename:=caminhoArquivo, FileFormat:=xlOpenXMLWorkbook
+Application.DisplayAlerts = True
+wbNovo.Close SaveChanges:=False
+MsgBox "Processo finalizado" & vbCrLf & "Arquivo salvo em: " & caminhoArquivo
+
+
+End Sub
